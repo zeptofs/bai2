@@ -18,7 +18,8 @@ class Bai2Test < Minitest::Test
       group_trailer_skips_number_of_accounts: true
     )
 
-    @all_files = [@daily, @daily_with_summary, @eod, @eod_no_as_of_time, @eod_with_slash_in_continuation]
+    @all_files = [@daily, @daily_with_summary, @eod, @eod_no_as_of_time, @eod_with_slash_in_continuation,
+                  @group_trailer_with_no_number_of_accounts]
   end
 
   def test_parsing
