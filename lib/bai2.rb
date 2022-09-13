@@ -14,6 +14,7 @@ module Bai2
       account_control_ignores_summary_amounts: false,
       num_account_summary_continuation_records: 0,
       continuations_slash_delimit_end_of_line_only: false,
+      group_trailer_skips_number_of_accounts: false
     }.freeze
 
     # Parse a file on disk:
