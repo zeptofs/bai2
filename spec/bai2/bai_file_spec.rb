@@ -30,5 +30,13 @@ RSpec.describe Bai2::BaiFile do
         expect(parsed).to be_a(described_class)
       end
     end
+
+    context "with 'eod_without_as_of_time' fixture" do
+      let(:path) { Fixtures.path("eod_without_as_of_time.bai2") }
+
+      it "instantiates without error" do
+        expect(parsed).to be_a(described_class)
+      end
+    end
   end
 end
