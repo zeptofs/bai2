@@ -15,30 +15,33 @@ gem 'bai2'
 
 And then execute:
 
-    $ bundle
+```sh
+bundle
+```
 
 Or install it yourself as:
 
-    $ gem install bai2
+```sh
+gem install bai2
+```
 
 ## Usage
 
 `BaiFile` is the main class in gem.
 
 ```ruby
-# Parse a file:
+# Parse a file
 file = Bai2::BaiFile.parse('file.bai2')
-# Parse data:
+
+# Parse data
 file = Bai2::BaiFile.new(string_data)
 
 puts file.sender, file.receiver
 
-# e.g. filter for groups relevant to your organization, iterate:
-file.groups.filter {|g| g.destination == YourOrgId }.each do |group|
-
+# eg filter for groups relevant to your organization, iterate:
+file.groups.filter { |g| g.destination == YourOrgId }.each do |group|
   # groups have accounts
   group.accounts.each do |account|
-
     puts account.customer, account.currency_code
 
     # summaries are arrays of hashes
@@ -46,58 +49,62 @@ file.groups.filter {|g| g.destination == YourOrgId }.each do |group|
 
     # accounts have transactions
 
-    # e.g. print all debits
-    account.transactions.filter(&:debit?).each do |debit|
+    # eg print all debits
+    account
+      .transactions
+      .filter(&:debit?)
+      .each do |debit|
+        # transactions have string amounts, too
+        puts debit.amount
 
-      # transactions have string amounts, too
-      puts debit.amount
+        # transaction types are represented by an informative hash:
+        puts debit.type
 
-      # transaction types are represented by an informative hash:
-      puts debit.type
-      # => {
-      #  code:        451,
-      #  transaction: :debit,
-      #  scope:       :detail,
-      #  description: "ACH Debit Received",
-      # }
+        # => {
+        #  code:        451,
+        #  transaction: :debit,
+        #  scope:       :detail,
+        #  description: "ACH Debit Received",
+        # }
 
-      puts debit.text
-    end
+        puts debit.text
+      end
 
-    # e.g. print sum of all credits
-    sum = account.transactions \
-      .filter(&:credit?) \
-      .map(&:amount) \
-      .map {|a| BigDecimal(a) } \
-      .reduce(&:+)
+    # eg print sum of all credits
+    sum =
+      account.transactions.filter(&:credit?).map(&:amount).map do |a|
+        BigDecimal(a)
+      end.reduce(&:+)
     puts sum.inspect
-
   end
 end
 ```
+
 ## Options
+
 `Bai2::BaiFile.parse` and `Bai2::BaiFile.new` accept an optional second parameter, `options`.
 
-* `options[:account_control_ignores_summary_amounts]` (Boolean, Default: False)
-See [Caveats](#caveats) below. Optionally ignores the amounts in the account summary fields when calculating the account control checksum.
-This value should be set only if you know that your bank uses this nonstandard calculation for
-account control values.
+- `options[:account_control_ignores_summary_amounts]` (Boolean, Default: False)
+  See [Caveats](#caveats) below. Optionally ignores the amounts in the account summary fields when calculating the
+  account control checksum.
+  This value should be set only if you know that your bank uses this nonstandard calculation for
+  account control values.
 
-* `options[:num_account_summary_continuation_records]` (Integer, Default: 0)
-The number of continuation records the account summary.
+- `options[:num_account_summary_continuation_records]` (Integer, Default: 0)
+  The number of continuation records the account summary.
 
-* `options[:continuations_slash_delimit_end_of_line_only]` (Boolean, Default: False)
-This allows continuation records to begin with `88,\` and still have the text including the slash to be processed.
+- `options[:continuations_slash_delimit_end_of_line_only]` (Boolean, Default: False)
+  This allows continuation records to begin with `88,\` and still have the text including the slash to be processed.
 
-
-##### Usage:
+##### Usage
 
 ```ruby
-Bai2::BaiFile.new(string_data,
-                  account_control_ignores_summary_amounts: true,
-                  num_account_summary_continuation_records: 3)
+Bai2::BaiFile.new(
+  string_data,
+  account_control_ignores_summary_amounts: true,
+  num_account_summary_continuation_records: 3,
+)
 ```
-
 
 ## Caveats
 
@@ -110,19 +117,20 @@ with more information on this would be greatly appreciated.
 ```ruby
 # Some banks differ from the spec (*cough* SVB) and do not include
 # the summary amounts in the control amount.
-actual_sum = if options[:account_control_ignores_summary_amounts]
-               transaction_amounts_sum
-             else
-               transaction_amounts_sum + summary_amounts_sum
-             end
+actual_sum =
+  if options[:account_control_ignores_summary_amounts]
+    transaction_amounts_sum
+  else
+    transaction_amounts_sum + summary_amounts_sum
+  end
 ```
 
 ## Developer setup
 
 ```sh
 # Install dependencies
-gem install bundler:1.17.3
-bundle _1.17.3_
+gem install bundler
+bundle
 
 # Run tests
 bundle exec ruby test/tests/*.rb
@@ -130,7 +138,7 @@ bundle exec ruby test/tests/*.rb
 
 ## Contributing
 
-1. Fork it ( https://github.com/venturehacks/bai2/fork )
+1. [Fork it](https://github.com/venturehacks/bai2/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

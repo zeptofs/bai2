@@ -20,7 +20,6 @@ module Bai2
   # `.last_name` on `Person`, which saves a whole bunch of typing :).
   #
   module AttrReaderFromIvarHash
-
     def attr_reader_from_ivar_hash(ivar, *keys)
       keys.each do |key|
         define_method(key) do
