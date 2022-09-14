@@ -121,8 +121,8 @@ actual_sum = if options[:account_control_ignores_summary_amounts]
 
 ```sh
 # Install dependencies
-gem install bundler:1.17.3
-bundle _1.17.3_
+gem install bundler
+bundle
 
 # Run tests
 bundle exec ruby test/tests/*.rb
