@@ -59,9 +59,9 @@ module Bai2
 
       # Builds the tree of nodes
       #
-      def parse_tree(records)
+      def parse_tree(all_records)
         # build tree, should return a file_header node
-        first, *records = *records
+        first, *records = *all_records
         unless first.code == :file_header
           raise ParseError.new("Expecting file header record (01).")
         end

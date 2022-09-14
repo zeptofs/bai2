@@ -35,7 +35,7 @@ module Bai2
 
     # Parses a type code, returns a structured informative hash
     ParseTypeCode = ->(code) do
-      meaning = TypeCodeData[code.to_i] || [nil, nil, nil]
+      meaning = TYPE_CODE_DATA[code.to_i] || [nil, nil, nil]
       {
         code: code.to_i,
         transaction: meaning[0],
@@ -179,7 +179,7 @@ module Bai2
       info = \
         case funds_type
         when "S"
-          now, next_day, later, rest = rest.split(",", 4).map(&:strip)
+          now, _next_day, _later, rest = rest.split(",", 4).map(&:strip)
           {
             availability: [
               {day: 0, amount: now},

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Bai2
-  TypeCodeData = {
+  TYPE_CODE_DATA = {
     10 => [:NA, :status, "Opening Ledger"],
     11 => [:NA, :status, "Average Opening Ledger MTD"],
     12 => [:NA, :status, "Average Opening Ledger YTD"],

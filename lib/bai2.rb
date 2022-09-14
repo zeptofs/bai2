@@ -91,26 +91,26 @@ module Bai2
     class Group
       extend AttrReaderFromIvarHash
 
+      attr_reader :accounts
+
       def initialize
         @accounts = []
       end
 
-      attr_reader :accounts
-
       attr_reader_from_ivar_hash :@header,
         :destination, :originator, :currency_code, :group_status
-
-      def as_of_datetime
-        @header[:as_of_date] + @header[:as_of_time]
-      end
-
-      private
 
       def self.parse(node)
         new.tap do |g|
           g.send(:parse, node)
         end
       end
+
+      def as_of_datetime
+        @header[:as_of_date] + @header[:as_of_time]
+      end
+
+      private
 
       def parse(n)
         unless n.code == :group_header && \
@@ -127,22 +127,21 @@ module Bai2
     class Account
       extend AttrReaderFromIvarHash
 
+      attr_reader :transactions
+
       def initialize
         @transactions = []
       end
 
-      attr_reader :transactions
-
-      attr_reader_from_ivar_hash :@header,
-        :customer, :currency_code, :summaries
-
-      private
+      attr_reader_from_ivar_hash :@header, :customer, :currency_code, :summaries
 
       def self.parse(node)
         new.tap do |g|
           g.send(:parse, node)
         end
       end
+
+      private
 
       def parse(n)
         unless n.code == :account_identifier && \
@@ -162,6 +161,12 @@ module Bai2
       attr_reader_from_ivar_hash :@record,
         :amount, :text, :type, :bank_reference, :customer_reference
 
+      def self.parse(node)
+        new.tap do |g|
+          g.send(:parse, node)
+        end
+      end
+
       def debit?
         type[:transaction] == :debit
       end
@@ -171,12 +176,6 @@ module Bai2
       end
 
       private
-
-      def self.parse(node)
-        new.tap do |g|
-          g.send(:parse, node)
-        end
-      end
 
       def parse(n)
         head, *rest = *n.records
