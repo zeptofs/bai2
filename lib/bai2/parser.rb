@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bai2/record'
 
 module Bai2

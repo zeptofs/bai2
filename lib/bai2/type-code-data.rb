@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Bai2
   TypeCodeData = {
      10 => [:NA,     :status,  %q{Opening Ledger}],

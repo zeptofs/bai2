@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bai2/record'
 require 'bai2/parser'
 require 'bai2/integrity'
@@ -14,6 +16,7 @@ module Bai2
       account_control_ignores_summary_amounts: false,
       num_account_summary_continuation_records: 0,
       continuations_slash_delimit_end_of_line_only: false,
+      group_trailer_without_number_of_accounts: false
     }.freeze
 
     # Parse a file on disk:

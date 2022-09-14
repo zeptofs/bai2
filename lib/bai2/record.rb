@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bai2/parser'
 require 'bai2/type-code-data.rb'
 
@@ -58,63 +60,10 @@ module Bai2
       v.to_i
     end
 
-    # For each record code, this defines a simple way to automatically parse the
-    # fields. Each field has a list of the keys. Some keys are not simply string
-    # types, in which case they will be formatted as a tuple (key, fn), where fn
-    # is a block (or anything that responds to `to_proc`) that will be called to
-    # cast the value (e.g. `:to_i`).
-    #
-    SIMPLE_FIELD_MAP = {
-      file_header: [
-        :record_code,
-        :sender,
-        :receiver,
-        [:file_creation_date, ParseDate],
-        [:file_creation_time, ParseMilitaryTime],
-        :file_identification_number,
-        [:physical_record_length, :to_i],
-        [:block_size, :to_i],
-        [:version_number, AssertVersion2],
-      ],
-      group_header: [
-        :record_code,
-        :destination,
-        :originator,
-        :group_status,
-        [:as_of_date, ParseDate],
-        [:as_of_time, ParseMilitaryTime],
-        :currency_code,
-        :as_of_date_modifier,
-      ],
-      group_trailer: [
-        :record_code,
-        [:group_control_total, :to_i],
-        [:number_of_accounts, :to_i],
-        [:number_of_records, :to_i],
-      ],
-      account_trailer: [
-        :record_code,
-        [:account_control_total, :to_i],
-        [:number_of_records, :to_i],
-      ],
-      file_trailer: [
-        :record_code,
-        [:file_control_total, :to_i],
-        [:number_of_groups, :to_i],
-        [:number_of_records, :to_i],
-      ],
-      continuation: [ # TODO: could continue any record at any point...
-        :record_code,
-        :continuation,
-      ],
-      # NOTE: transaction_detail is not present here, because it is too complex
-      # for a simple mapping like this.
-    }
-
-
     def initialize(line, physical_record_count = 1, options: {})
       @code = RECORD_CODES[line[0..1]]
       @physical_record_count = physical_record_count
+      @options = options
       # clean / delimiter
       @raw = if options[:continuations_slash_delimit_end_of_line_only]
               # Continuation records for transaction details extend the text fields
@@ -126,13 +75,13 @@ module Bai2
              end
     end
 
-    attr_reader :code, :raw, :physical_record_count
+    attr_reader :code, :raw, :physical_record_count, :options
 
     # NOTE: fields is called upon first use, so as not to parse records right
     # away in case they might be merged with a continuation.
     #
     def fields
-      @fields ||= parse_raw(@code, @raw)
+      @fields ||= parse_raw(@code, @raw, @options)
     end
 
     # A record can be accessed like a hash.
@@ -143,9 +92,8 @@ module Bai2
 
     private
 
-    def parse_raw(code, line)
-
-      fields = (SIMPLE_FIELD_MAP[code] || [])
+    def parse_raw(code, line, options)
+      fields = (FieldMap.call(options)[code] || [])
       if !fields.empty?
         split = line.split(',', fields.count).map(&:strip)
         Hash[fields.zip(split).map do |k,v|
@@ -263,5 +211,74 @@ module Bai2
       [info, rest]
     end
 
+    class FieldMap
+      # For each record code, this defines a simple way to automatically parse the
+      # fields. Each field has a list of the keys. Some keys are not simply string
+      # types, in which case they will be formatted as a tuple (key, fn), where fn
+      # is a block (or anything that responds to `to_proc`) that will be called to
+      # cast the value (e.g. `:to_i`).
+      #
+      DEFAULT_FIELD_MAP = {
+        file_header: [
+          :record_code,
+          :sender,
+          :receiver,
+          [:file_creation_date, ParseDate],
+          [:file_creation_time, ParseMilitaryTime],
+          :file_identification_number,
+          %i[physical_record_length to_i],
+          %i[block_size to_i],
+          [:version_number, AssertVersion2]
+        ],
+        group_header: [
+          :record_code,
+          :destination,
+          :originator,
+          :group_status,
+          [:as_of_date, ParseDate],
+          [:as_of_time, ParseMilitaryTime],
+          :currency_code,
+          :as_of_date_modifier
+        ],
+        group_trailer: [
+          :record_code,
+          %i[group_control_total to_i],
+          %i[number_of_accounts to_i],
+          %i[number_of_records to_i]
+        ],
+        account_trailer: [
+          :record_code, %i[account_control_total to_i],
+          %i[number_of_records to_i]
+        ],
+        file_trailer: [
+          :record_code,
+          %i[file_control_total to_i],
+          %i[number_of_groups to_i],
+          %i[number_of_records to_i]
+        ],
+        continuation: [ # TODO: could continue any record at any point...
+          :record_code,
+          :continuation
+        ]
+        # NOTE: transaction_detail is not present here, because it is too complex
+        # for a simple mapping like this.
+      }
+
+      GROUP_TRAILER_SKIPS_NUMBER_OF_ACCOUNTS = {
+        group_trailer: [
+          :record_code,
+          %i[group_control_total to_i],
+          %i[number_of_records to_i]
+        ]
+      }
+
+      def self.call(options = {})
+        if options[:group_trailer_without_number_of_accounts]
+          DEFAULT_FIELD_MAP.merge(GROUP_TRAILER_SKIPS_NUMBER_OF_ACCOUNTS)
+        else
+          DEFAULT_FIELD_MAP
+        end
+      end
+    end
   end
 end
