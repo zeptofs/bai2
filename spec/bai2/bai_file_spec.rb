@@ -38,5 +38,14 @@ RSpec.describe Bai2::BaiFile do
         expect(parsed).to be_a(described_class)
       end
     end
+
+    context "with 'eod_with_slash_in_text' fixture" do
+      let(:path) { Fixtures.path("eod_with_slash_in_text.bai2") }
+      let(:options) { {continuations_slash_delimit_end_of_line_only: true} }
+
+      it "instantiates without error" do
+        expect(parsed).to be_a(described_class)
+      end
+    end
   end
 end
