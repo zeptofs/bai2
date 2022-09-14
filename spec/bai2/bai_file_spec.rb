@@ -47,5 +47,14 @@ RSpec.describe Bai2::BaiFile do
         expect(parsed).to be_a(described_class)
       end
     end
+
+    context "with 'group_trailer_without_number_of_accounts' fixture" do
+      let(:path) { Fixtures.path("group_trailer_without_number_of_accounts.bai2") }
+      let(:options) { {group_trailer_without_number_of_accounts: true} }
+
+      it "instantiates without error" do
+        expect(parsed).to be_a(described_class)
+      end
+    end
   end
 end
