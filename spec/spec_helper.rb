@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "bai2"
+
+Dir[File.expand_path("support/**/*.rb", __dir__)].sort.each(&method(:require))
+
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
