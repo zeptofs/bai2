@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require 'bai2/record'
-require 'bai2/parser'
-require 'bai2/integrity'
-require 'bai2/attr-reader-from-ivar-hash'
+require "bai2/record"
+require "bai2/parser"
+require "bai2/integrity"
+require "bai2/attr-reader-from-ivar-hash"
 
 module Bai2
-
-
   # This class is the main wrapper around a Bai2 file.
   #
   class BaiFile
-
     DEFAULT_OPTIONS = {
       account_control_ignores_summary_amounts: false,
       num_account_summary_continuation_records: 0,
@@ -24,9 +21,8 @@ module Bai2
     #   f = BaiFile.parse('myfile.bai2')
     #
     def self.parse(path, options = {})
-      self.new(File.read(path), options)
+      new(File.read(path), options)
     end
-
 
     # Parse a Bai2 data buffer:
     #
@@ -45,7 +41,6 @@ module Bai2
     # The groups contained within this file.
     attr_reader :groups
 
-
     # =========================================================================
     # Record reading
     #
@@ -59,14 +54,12 @@ module Bai2
       @header[:file_creation_date] + @header[:file_creation_time]
     end
 
-
     private
 
     # This delegates most of the work to Bai2::Parser to build the ParseNode
     # tree.
     #
     def parse(data, options)
-
       root = Parser.parse(data, options)
 
       # parse the file node; will descend tree and parse children
@@ -76,21 +69,18 @@ module Bai2
       assert_integrity!
     end
 
-
     # Parses the file_header root tree node, and creates the object hierarchy.
     #
     def parse_file_node(n)
-
       unless n.code == :file_header && n.records.count == 2 && \
           n.records.map(&:code) == [:file_header, :file_trailer]
-        raise ParseError.new('Unexpected record.')
+        raise ParseError.new("Unexpected record.")
       end
 
       @header, @trailer = *n.records
 
-      @groups = n.children.map {|child| Group.send(:parse, child) }
+      @groups = n.children.map { |child| Group.send(:parse, child) }
     end
-
 
     # =========================================================================
     # Entities
@@ -115,26 +105,24 @@ module Bai2
       end
 
       private
+
       def self.parse(node)
-        self.new.tap do |g|
+        new.tap do |g|
           g.send(:parse, node)
         end
       end
 
       def parse(n)
-
         unless n.code == :group_header && \
             n.records.map(&:code) == [:group_header, :group_trailer]
-          raise ParseError.new('Unexpected record.')
+          raise ParseError.new("Unexpected record.")
         end
 
         @header, @trailer = *n.records
 
-        @accounts = n.children.map {|child| Account.send(:parse, child) }
+        @accounts = n.children.map { |child| Account.send(:parse, child) }
       end
-
     end
-
 
     class Account
       extend AttrReaderFromIvarHash
@@ -149,26 +137,24 @@ module Bai2
         :customer, :currency_code, :summaries
 
       private
+
       def self.parse(node)
-        self.new.tap do |g|
+        new.tap do |g|
           g.send(:parse, node)
         end
       end
 
       def parse(n)
-
         unless n.code == :account_identifier && \
             n.records.map(&:code) == [:account_identifier, :account_trailer]
-          raise ParseError.new('Unexpected record.')
+          raise ParseError.new("Unexpected record.")
         end
 
         @header, @trailer = *n.records
 
-        @transactions = n.children.map {|child| Transaction.parse(child) }
+        @transactions = n.children.map { |child| Transaction.parse(child) }
       end
-
     end
-
 
     class Transaction
       extend AttrReaderFromIvarHash
@@ -185,8 +171,9 @@ module Bai2
       end
 
       private
+
       def self.parse(node)
-        self.new.tap do |g|
+        new.tap do |g|
           g.send(:parse, node)
         end
       end
@@ -195,13 +182,11 @@ module Bai2
         head, *rest = *n.records
 
         unless head.code == :transaction_detail && rest.empty?
-          raise ParseError.new('Unexpected record.')
+          raise ParseError.new("Unexpected record.")
         end
 
         @record = head
       end
-
     end
-
   end # BaiFile
 end

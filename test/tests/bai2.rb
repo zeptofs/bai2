@@ -1,27 +1,26 @@
 # frozen_string_literal: true
 
-require File.expand_path('../../autorun.rb', __FILE__)
+require File.expand_path("../../autorun.rb", __FILE__)
 
-require 'bai2'
+require "bai2"
 
 class Bai2Test < Minitest::Test
-
   def setup
-    @daily = Bai2::BaiFile.parse(File.expand_path('../../data/daily.bai2', __FILE__))
-    @daily_with_summary = Bai2::BaiFile.parse(File.expand_path('../../data/daily_with_summary.bai2', __FILE__),
-                                              num_account_summary_continuation_records: 3)
+    @daily = Bai2::BaiFile.parse(File.expand_path("../../data/daily.bai2", __FILE__))
+    @daily_with_summary = Bai2::BaiFile.parse(File.expand_path("../../data/daily_with_summary.bai2", __FILE__),
+      num_account_summary_continuation_records: 3)
 
-    @eod = Bai2::BaiFile.parse(File.expand_path('../../data/eod.bai2', __FILE__))
-    @eod_no_as_of_time = Bai2::BaiFile.parse(File.expand_path('../../data/eod_without_as_of_time.bai2', __FILE__))
-    @eod_with_slash_in_continuation = Bai2::BaiFile.parse(File.expand_path('../../data/eod_with_slash_in_text.bai2', __FILE__),
-                                                          continuations_slash_delimit_end_of_line_only: true)
+    @eod = Bai2::BaiFile.parse(File.expand_path("../../data/eod.bai2", __FILE__))
+    @eod_no_as_of_time = Bai2::BaiFile.parse(File.expand_path("../../data/eod_without_as_of_time.bai2", __FILE__))
+    @eod_with_slash_in_continuation = Bai2::BaiFile.parse(File.expand_path("../../data/eod_with_slash_in_text.bai2", __FILE__),
+      continuations_slash_delimit_end_of_line_only: true)
     @group_trailer_without_number_of_accounts = Bai2::BaiFile.parse(
-      File.expand_path('../data/group_trailer_without_number_of_accounts.bai2', __dir__),
+      File.expand_path("../data/group_trailer_without_number_of_accounts.bai2", __dir__),
       group_trailer_without_number_of_accounts: true
     )
 
     @all_files = [@daily, @daily_with_summary, @eod, @eod_no_as_of_time, @eod_with_slash_in_continuation,
-                  @group_trailer_without_number_of_accounts]
+      @group_trailer_without_number_of_accounts]
   end
 
   def test_parsing
@@ -36,10 +35,10 @@ class Bai2Test < Minitest::Test
       assert_equal(1, file.groups.count)
       group = file.groups.first
       assert_kind_of(Bai2::BaiFile::Group, group)
-      assert_equal('121140399', group.originator)
+      assert_equal("121140399", group.originator)
     end
-    assert_equal('9999999999', @daily.groups[0].destination)
-    assert_equal('3333333333', @eod.groups[0].destination)
+    assert_equal("9999999999", @daily.groups[0].destination)
+    assert_equal("3333333333", @eod.groups[0].destination)
   end
 
   def test_accounts
@@ -62,24 +61,24 @@ class Bai2Test < Minitest::Test
       code: 174,
       transaction: :credit,
       scope: :detail,
-      description: 'Other Deposit'
+      description: "Other Deposit"
     })
     assert_equal(second.type, {
       code: 195,
       transaction: :credit,
       scope: :detail,
-      description: 'Incoming Money Transfer'
+      description: "Incoming Money Transfer"
     })
   end
 
   def test_integrity
     assert_raises Bai2::BaiFile::IntegrityError do
       # Calling without the options: num_account_summary_continuation_records => 3 should raise an error
-      Bai2::BaiFile.parse(File.expand_path('../../data/daily_with_summary.bai2', __FILE__))
+      Bai2::BaiFile.parse(File.expand_path("../../data/daily_with_summary.bai2", __FILE__))
     end
     assert_raises Bai2::BaiFile::IntegrityError do
       # An invalid amount checksum should raise an error
-      Bai2::BaiFile.parse(File.expand_path('../../data/invalid_checksum_eod.bai2', __FILE__))
+      Bai2::BaiFile.parse(File.expand_path("../../data/invalid_checksum_eod.bai2", __FILE__))
     end
   end
 end

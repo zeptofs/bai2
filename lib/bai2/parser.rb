@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
-require 'bai2/record'
+require "bai2/record"
 
 module Bai2
-
-  class ParseError < Exception; end
+  class ParseError < RuntimeError; end
 
   module Parser
-
     # Wrapper object to represent a tree node.
     #
     class ParseNode
-
       def initialize(record)
         @code, @records = record.code, [record]
         @children = []
@@ -20,28 +17,22 @@ module Bai2
       attr_accessor :records, :children
     end
 
-
     class << self
-
       # Parsing is a two-step process:
       #
       # 1. Build a tree
       # 2. Parse the tree
       #
       def parse(data, options)
-
         # split records, handle stupid DOS-format files, instantiate records
-        records = data.split("\n").map(&:strip).map {|l| Record.new(l, options: options) }
+        records = data.split("\n").map(&:strip).map { |l| Record.new(l, options: options) }
 
         # merge continuations
         records = merge_continuations(records)
 
         # build the tree
-        root = parse_tree(records)
-
-        root
+        parse_tree(records)
       end
-
 
       # =========================================================================
       # Parsing implementation
@@ -55,9 +46,9 @@ module Bai2
         merged = []
         records.each do |record|
           if record.code == :continuation
-            last       = merged.pop
+            last = merged.pop
             new_record = Record.new(last.raw + ",\n" + record.fields[:continuation],
-                                    last.physical_record_count + 1)
+              last.physical_record_count + 1)
             merged << new_record
           else
             merged << record
@@ -66,28 +57,26 @@ module Bai2
         merged
       end
 
-
       # Builds the tree of nodes
       #
       def parse_tree(records)
-
         # build tree, should return a file_header node
         first, *records = *records
         unless first.code == :file_header
-          raise ParseError.new('Expecting file header record (01).')
+          raise ParseError.new("Expecting file header record (01).")
         end
         root = ParseNode.new(first)
         stack = [root]
 
         records.each do |record|
-          raise ParseError.new('Unexpected record.') if stack.empty?
+          raise ParseError.new("Unexpected record.") if stack.empty?
 
           case record.code
 
             # handling headers
           when :group_header, :account_identifier
 
-            parent = {group_header:       :file_header,
+            parent = {group_header: :file_header,
                       account_identifier: :group_header}[record.code]
             unless stack.last.code == parent
               raise ParseError.new("Parsing #{record.code}, expecting #{parent} parent.")
@@ -101,8 +90,8 @@ module Bai2
           when :account_trailer, :group_trailer, :file_trailer
 
             parent = {account_trailer: :account_identifier,
-                      group_trailer:   :group_header,
-                      file_trailer:    :file_header}[record.code]
+                      group_trailer: :group_header,
+                      file_trailer: :file_header}[record.code]
             unless stack.last.code == parent
               raise ParseError.new("Parsing #{record.code}, expecting #{parent} parent.")
             end
@@ -127,18 +116,17 @@ module Bai2
 
             # handling special known errors
           else # nil
-            raise ParseError.new('Unknown or unexpected record code.')
+            raise ParseError.new("Unknown or unexpected record code.")
           end
         end
 
         unless stack == []
-          raise ParseError.new('Reached unexpected end of input (EOF).')
+          raise ParseError.new("Reached unexpected end of input (EOF).")
         end
 
         # root now contains our parsed tree
         root
       end
-
     end
   end
 end
