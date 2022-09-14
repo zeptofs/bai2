@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require File.expand_path('../../autorun.rb', __FILE__)
 
 require 'bai2'
