@@ -8,6 +8,14 @@ RSpec.describe Bai2::BaiFile do
       it "instantiates without error" do
         expect(parsed).to be_a(described_class)
       end
+
+      it "has one group with expected originator", :aggregate_failures do
+        expect(parsed.groups).to be_a(Array)
+        expect(parsed.groups.length).to eq(1)
+        group = parsed.groups.first
+        expect(group).to be_a(Bai2::BaiFile::Group)
+        expect(group.originator).to eq("121140399")
+      end
     end
 
     context "with 'daily' fixture" do
