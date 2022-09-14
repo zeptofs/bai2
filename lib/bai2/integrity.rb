@@ -63,7 +63,7 @@ module Bai2
         }
 
         # Check children count
-        unless options[:group_trailer_skips_number_of_accounts] || expectation[:children] == (actual = accounts.count)
+        unless options[:group_trailer_without_number_of_accounts] || expectation[:children] == (actual = accounts.count)
           raise IntegrityError, 'Number of accounts invalid: ' \
             + "expected #{expectation[:children]}, actually: #{actual}"
         end

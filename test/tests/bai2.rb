@@ -13,13 +13,13 @@ class Bai2Test < Minitest::Test
     @eod_no_as_of_time = Bai2::BaiFile.parse(File.expand_path('../../data/eod_without_as_of_time.bai2', __FILE__))
     @eod_with_slash_in_continuation = Bai2::BaiFile.parse(File.expand_path('../../data/eod_with_slash_in_text.bai2', __FILE__),
                                                           continuations_slash_delimit_end_of_line_only: true)
-    @group_trailer_with_no_number_of_accounts = Bai2::BaiFile.parse(
-      File.expand_path('../data/group_trailer_with_no_number_of_accounts.bai2', __dir__),
-      group_trailer_skips_number_of_accounts: true
+    @group_trailer_without_number_of_accounts = Bai2::BaiFile.parse(
+      File.expand_path('../data/group_trailer_without_number_of_accounts.bai2', __dir__),
+      group_trailer_without_number_of_accounts: true
     )
 
     @all_files = [@daily, @daily_with_summary, @eod, @eod_no_as_of_time, @eod_with_slash_in_continuation,
-                  @group_trailer_with_no_number_of_accounts]
+                  @group_trailer_without_number_of_accounts]
   end
 
   def test_parsing

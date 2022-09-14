@@ -271,7 +271,7 @@ module Bai2
       }
 
       def self.call(options = {})
-        if options[:group_trailer_skips_number_of_accounts]
+        if options[:group_trailer_without_number_of_accounts]
           DEFAULT_FIELD_MAP.merge(GROUP_TRAILER_SKIPS_NUMBER_OF_ACCOUNTS)
         else
           DEFAULT_FIELD_MAP
