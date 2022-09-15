@@ -16,6 +16,13 @@ RSpec.describe Bai2::BaiFile do
         expect(group).to be_a(Bai2::BaiFile::Group)
         expect(group.originator).to eq("121140399")
       end
+
+      it "imports an account" do
+        accounts = parsed.groups.first.accounts
+        expect(accounts).to be_a(Array)
+        expect(accounts.length).to eq(1)
+        expect(accounts.first).to be_a(Bai2::BaiFile::Account)
+      end
     end
 
     context "with 'daily' fixture" do
