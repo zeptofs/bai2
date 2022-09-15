@@ -54,6 +54,14 @@ RSpec.describe Bai2::BaiFile do
       let(:options) { {num_account_summary_continuation_records: 3} }
 
       it_behaves_like "a parsable format"
+
+      context "without num_account_summary_continuation_records option" do
+        let(:options) { {} }
+
+        it "raises IntegrityError" do
+          expect { parsed }.to raise_error(described_class::IntegrityError)
+        end
+      end
     end
 
     context "with 'eod' fixture" do
@@ -99,6 +107,15 @@ RSpec.describe Bai2::BaiFile do
       let(:options) { {group_trailer_without_number_of_accounts: true} }
 
       it_behaves_like "a parsable format"
+    end
+
+    context "with 'invalid_checksum_eod' fixture" do
+      let(:path) { Fixtures.path("invalid_checksum_eod.bai2") }
+      let(:options) { {} }
+
+      it "raises IntegrityError" do
+        expect { parsed }.to raise_error(described_class::IntegrityError)
+      end
     end
   end
 end
