@@ -13,7 +13,7 @@ RSpec.describe Bai2::BaiFile do
         expect(parsed.groups).to be_a(Array)
         expect(parsed.groups.length).to eq(1)
         group = parsed.groups.first
-        expect(group).to be_a(Bai2::BaiFile::Group)
+        expect(group).to be_a(described_class::Group)
         expect(group.originator).to eq("121140399")
       end
 
@@ -21,7 +21,7 @@ RSpec.describe Bai2::BaiFile do
         accounts = parsed.groups.first.accounts
         expect(accounts).to be_a(Array)
         expect(accounts.length).to eq(1)
-        expect(accounts.first).to be_a(Bai2::BaiFile::Account)
+        expect(accounts.first).to be_a(described_class::Account)
       end
     end
 
@@ -39,7 +39,7 @@ RSpec.describe Bai2::BaiFile do
         transactions = parsed.groups.first.accounts.first.transactions
         expect(transactions).to be_a(Array)
         expect(transactions.length).to eq(1)
-        expect(transactions.first).to be_a(Bai2::BaiFile::Transaction)
+        expect(transactions.first).to be_a(described_class::Transaction)
         expect(transactions.first.type).to eq(
           code: 174,
           transaction: :credit,
@@ -70,7 +70,7 @@ RSpec.describe Bai2::BaiFile do
         transactions = parsed.groups.first.accounts.first.transactions
         expect(transactions).to be_a(Array)
         expect(transactions.length).to eq(1)
-        expect(transactions.first).to be_a(Bai2::BaiFile::Transaction)
+        expect(transactions.first).to be_a(described_class::Transaction)
         expect(transactions.first.type).to eq(
           code: 195,
           transaction: :credit,
