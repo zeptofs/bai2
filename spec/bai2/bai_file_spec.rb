@@ -34,6 +34,19 @@ RSpec.describe Bai2::BaiFile do
       it "sets expected destination" do
         expect(parsed.groups.first.destination).to eq("9999999999")
       end
+
+      it "imports a transaction" do
+        transactions = parsed.groups.first.accounts.first.transactions
+        expect(transactions).to be_a(Array)
+        expect(transactions.length).to eq(1)
+        expect(transactions.first).to be_a(Bai2::BaiFile::Transaction)
+        expect(transactions.first.type).to eq(
+          code: 174,
+          transaction: :credit,
+          scope: :detail,
+          description: "Other Deposit"
+        )
+      end
     end
 
     context "with 'daily_with_summary' fixture" do
@@ -51,6 +64,19 @@ RSpec.describe Bai2::BaiFile do
 
       it "sets expected destination" do
         expect(parsed.groups.first.destination).to eq("3333333333")
+      end
+
+      it "imports a transaction" do
+        transactions = parsed.groups.first.accounts.first.transactions
+        expect(transactions).to be_a(Array)
+        expect(transactions.length).to eq(1)
+        expect(transactions.first).to be_a(Bai2::BaiFile::Transaction)
+        expect(transactions.first.type).to eq(
+          code: 195,
+          transaction: :credit,
+          scope: :detail,
+          description: "Incoming Money Transfer"
+        )
       end
     end
 
