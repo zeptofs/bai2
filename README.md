@@ -133,7 +133,7 @@ gem install bundler
 bundle
 
 # Run tests
-bundle exec ruby test/tests/*.rb
+bundle exec rspec
 ```
 
 ## Contributing
