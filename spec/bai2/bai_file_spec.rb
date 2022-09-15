@@ -23,6 +23,10 @@ RSpec.describe Bai2::BaiFile do
       let(:options) { {} }
 
       it_behaves_like "a parsable format"
+
+      it "sets expected destination" do
+        expect(parsed.groups.first.destination).to eq("9999999999")
+      end
     end
 
     context "with 'daily_with_summary' fixture" do
@@ -37,6 +41,10 @@ RSpec.describe Bai2::BaiFile do
       let(:options) { {} }
 
       it_behaves_like "a parsable format"
+
+      it "sets expected destination" do
+        expect(parsed.groups.first.destination).to eq("3333333333")
+      end
     end
 
     context "with 'eod_without_as_of_time' fixture" do
